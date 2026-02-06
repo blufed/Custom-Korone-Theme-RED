@@ -1,0 +1,119 @@
+// ==UserScript==
+// @name        Custom Theme By LMoD
+// @namespace   Violentmonkey Scripts
+// @match       *://pekora.zip/*
+// @match       *://www.pekora.zip/*
+// @exclude-match *://www.pekora.zip/internal/collectibles*
+// @grant       none
+// @version     6.6
+// ==/UserScript==
+
+(function() {
+    'use strict';
+
+    if (window.location.href.includes('/internal/collectibles')) return;
+
+    const RED = "#ff0000";
+    const GREEN = "#00ff00";
+    const GLOW = "0 0 8px #ff0000, 0 0 15px #770000";
+    const GREEN_GLOW = "0 0 10px #00ff00, 0 0 20px #00ff00";
+
+    const css = `
+        *, ::before, ::after {
+            background-color: transparent !important;
+            border-color: transparent !important;
+            outline: none !important;
+            box-shadow: none !important;
+        }
+
+        html, body, #app, .main-container, [class*='container-'], .page-content, 
+        .content, .rbx-header, #header, .nav-container, .trade-request-window,
+        [class*='innerSection'], [class*='modalWrapper'], .section-content,
+        .modal-content, .modal-body, .modal-footer, .modal-header,
+        section, main, article, aside, nav, header, footer, .panel, .card,
+        [style*="background-color: white"], [style*="background-color: rgb(255, 255, 255)"],
+        .section-content, .rbx-tab-content, .tab-container, .avatar-backscape, 
+        [class*='avatar-container'], .avatar-preview-container, .avatar-card-container {
+            background-color: #000000 !important;
+            background: #000000 !important;
+        }
+
+        div, span, p, b, h1, h2, h3, h4, h5, h6, a, label, .text-label, [class*='text-'], th, td {
+            color: ${RED} !important;
+            text-shadow: ${GLOW} !important;
+        }
+
+        .item-card.wearing, .item-card[data-is-wearing="true"], .item-card.is-wearing,
+        [class*='item-card'].wearing, .avatar-card-container.wearing {
+            border: 2px solid ${GREEN} !important;
+            box-shadow: ${GREEN_GLOW} !important;
+        }
+
+        .item-card.wearing *, .item-card[data-is-wearing="true"] *, .item-card.is-wearing * {
+            color: ${GREEN} !important;
+            text-shadow: ${GREEN_GLOW} !important;
+        }
+
+        .notification-red, .notification-blue, .badge, [class*='notification'], [class*='badge'], .notification-count {
+            background-color: #ff0000 !important;
+            color: #ffffff !important;
+            box-shadow: 0 0 10px #ff0000 !important;
+            text-shadow: none !important;
+        }
+
+        button, .btn-primary, .play-button, [class*='btn-0-2-'], 
+        .acceptButton-0-2-149, .cancelButton-0-2-152, .buyButton-0-2-150,
+        .btn-confirm, .btn-control, [style*="background-color: rgb(0, 162, 255)"] {
+            background-color: #660000 !important;
+            color: #ffffff !important;
+            border: 1px solid ${RED} !important;
+            text-shadow: none !important;
+            display: inline-block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+        }
+
+        .item-card, .game-card, img, .thumbnail-holder, 
+        [class*='imageWrapper'], [class*='image-0-2-'], .avatar-card-container {
+            background-color: #000000 !important;
+            border: 1px solid #330000 !important;
+        }
+
+        .rbx-header, .navbar, .ribbon-bar, [class*='header'], #navbar {
+            background-color: #000000 !important;
+            border-bottom: 1px solid #440000 !important;
+        }
+
+        input, select, textarea {
+            background-color: #111 !important;
+            color: ${RED} !important;
+            border: 1px solid #440000 !important;
+        }
+
+        ::-webkit-scrollbar { width: 0px; }
+    `;
+
+    const style = document.createElement('style');
+    style.innerHTML = css;
+    document.head.appendChild(style);
+
+    const forceVoid = () => {
+        const elements = document.querySelectorAll('*');
+        for (let i = 0; i < elements.length; i++) {
+            const el = elements[i];
+            const bg = window.getComputedStyle(el).backgroundColor;
+            if (bg.includes('255, 255, 255') || bg.includes('242, 244, 245') || bg.includes('0, 162, 255') || bg.includes('163, 162, 165') || bg.includes('84, 63, 26')) {
+                el.style.setProperty('background-color', '#000000', 'important');
+            }
+            if (el.classList.contains('wearing') || el.getAttribute('data-is-wearing') === 'true') {
+                el.style.setProperty('border', `2px solid ${GREEN}`, 'important');
+                el.style.setProperty('box-shadow', GREEN_GLOW, 'important');
+            }
+        }
+    };
+
+    const observer = new MutationObserver(forceVoid);
+    observer.observe(document.body, { childList: true, subtree: true, attributes: true });
+    forceVoid();
+    setInterval(forceVoid, 1000);
+})();
